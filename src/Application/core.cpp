@@ -56,13 +56,13 @@ namespace Application {
 
       if (list.all_exist) {
         for (const auto& file : list) {
-          fmt::print("--[{}]--\n", file.path);
+          fmt::print("\e[0;100m--[{}]--\e[0m\n", file.path);
           std::ifstream fs(file.path);
           if (fs.is_open()) {
             std::string line;
             size_t line_count = 0; 
             while (std::getline(fs, line)) {
-              fmt::print("{:>4}| {}\n", ++line_count, line);
+              fmt::print("\e[32;40m{:>4}\e[0;40m|\e[0m {}\n", ++line_count, line);
             }
 
             fs.close();
