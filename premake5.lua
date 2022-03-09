@@ -1,45 +1,46 @@
-workspace "Application"
-   configurations { "Debug", "Release" }
-   architecture "x64"
-   startproject "Application"
-   source_files = {
-	   "src/**.h", 
-	   "src/**.hpp",
-	   "src/**.cpp",
-   }
-   
-   include "vendor/fmt/premake.lua"
+workspace "catplusplus"
+  configurations { "Debug", "Release" }
+  architecture "x64"
+  startproject "catpp"
+  source_files = {
+    "src/**.h", 
+    "src/**.hpp",
+    "src/**.cpp",
+  }
+  
+  include "vendor/fmt/premake.lua"
 
-project "Application"
-   kind "ConsoleApp"
-   language "C++"
-   targetdir "build/bin/%{cfg.buildcfg}"
-   objdir "build/obj/%{cfg.buildcfg}"
+project "catpp"
+  kind "ConsoleApp"
+  language "C++"
+  targetdir "build/bin/%{cfg.buildcfg}"
+  objdir "build/obj/%{cfg.buildcfg}"
 
-   files { source_files }
+  files { source_files }
 
-   includedirs {
-	"src/",
-     "vendor/fmt/include",
-   }
+  includedirs {
+    "src/",
+    "vendor/fmt/include",
+    "vendor/args-parser/include"
+  }
 
-   libdirs { "vendor" }
+  libdirs { "vendor" }
 
-   links {
-      "fmt"
-   }
-   
-   filter "system:windows"
-      cppdialect "C++20"
+  links {
+    "fmt"
+  }
+  
+  filter "system:windows"
+    cppdialect "C++20"
 
-   filter "system:linux"
-      cppdialect "gnu++2a"
+  filter "system:linux"
+    cppdialect "gnu++2a"
 
 
-   filter "configurations:Debug"
-      defines { "DEBUG" }
-      symbols "On"
+  filter "configurations:Debug"
+    defines { "DEBUG" }
+    symbols "On"
 
-   filter "configurations:Release"
-      defines { "RELEASE" }
-      optimize "On"
+  filter "configurations:Release"
+    defines { "RELEASE" }
+    optimize "On"
