@@ -1,12 +1,14 @@
 #include "core.h"
-#include <fmt/core.h>
 #include <args-parser/all.hpp>
+#include <fmt/core.h>
 #include <filesystem>
-#include <vector>
 #include <string>
 #include <fstream>
 
+#include <vector>
+
 namespace Application {
+
   struct File {
     Args::String path;
     bool exists;
@@ -14,27 +16,30 @@ namespace Application {
 
   struct FileList {
     bool all_exist;
-    std::vector<File> list;
 
-    size_t size() { return list.size(); }
+    size_t size() { return m_list.size(); }
+    auto begin() { return m_list.begin(); }
+    auto end() { return m_list.end(); }
+
+    std::vector<File> m_list;
   };
 
   FileList files_exist(const Args::StringList& paths) {
-    std::vector<File> list;
-    bool exists = true;
+    std::vector<File> m_list;
+    bool m_exists = true;
 
     for (const auto& path : paths) {
 
       bool file_exists = std::filesystem::exists(path);
-      exists = !file_exists ? false : exists;
-      list.emplace_back(File { .path = path, .exists = file_exists });
+      m_exists = !file_exists ? false : m_exists;
+      m_list.emplace_back(File { .path = path, .exists = file_exists });
 
       #if 0
         fmt::print("{} - {}\n", path, file_exists);
       #endif
     }
 
-    return FileList { .all_exist = exists, .list = list };
+    return FileList { .all_exist = m_exists, .m_list = m_list };
   }
 
 	int run(int argc, char** argv) {
@@ -42,19 +47,15 @@ namespace Application {
       Args::CmdLine cli(argc, argv);
 
       cli
-        .addArgWithFlagAndName('t', "test", true, false, "Test argument", "Testing argument")
         .addMultiArg('f', "file", true, true, "Path to file", "Path of file to read")
-        //.addArgWithFlagAndName('f', "file", true, true, "Path to file", "Path of file to read")
         .addHelp(true, argv[0], "Basic cat clone written in C++");
 
       cli.parse();
-      std::string test = cli.isDefined("-t") ? cli.value("-t") : "Not specified";
-
 
       FileList list = files_exist(cli.values("-f"));
 
       if (list.all_exist) {
-        for (const auto& file : list.list) {
+        for (const auto& file : list) {
           fmt::print("--[{}]--\n", file.path);
           std::ifstream fs(file.path);
           if (fs.is_open()) {
@@ -75,7 +76,7 @@ namespace Application {
         return EXIT_SUCCESS;
       } else {
         std::string invalid_files = "";
-        for (const auto& file : list.list) {
+        for (const auto& file : list) {
           if (!file.exists) {
             std::string start = invalid_files.empty() ? "" : ", ";
             invalid_files.append(fmt::format("{}{}", start, file.path));
