@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <vector>
 #include <string>
+#include <fstream>
 
 namespace Application {
   struct File {
@@ -15,7 +16,7 @@ namespace Application {
     bool all_exist;
     std::vector<File> list;
 
-    std::size_t size() { return list.size(); }
+    size_t size() { return list.size(); }
   };
 
   FileList files_exist(const Args::StringList& paths) {
@@ -54,8 +55,24 @@ namespace Application {
 
       if (list.all_exist) {
         for (const auto& file : list.list) {
-          fmt::print("{}\n", file.path);
+          fmt::print("--[{}]--\n", file.path);
+          std::ifstream fs(file.path);
+          if (fs.is_open()) {
+            std::string line;
+            size_t line_count = 0; 
+            while (std::getline(fs, line)) {
+              fmt::print("{:>4}| {}\n", ++line_count, line);
+            }
+
+            fs.close();
+            fmt::print("\n");
+          } else {
+            fmt::print("Couldn't open file [{}]", file.path);
+            return EXIT_FAILURE;
+          }
         }
+
+        return EXIT_SUCCESS;
       } else {
         std::string invalid_files = "";
         for (const auto& file : list.list) {
@@ -69,20 +86,21 @@ namespace Application {
           fmt::print("Files [{}] don't exist\n", invalid_files);
         else
           fmt::print("File [{}] doesn't exist\n", invalid_files);
+        return EXIT_FAILURE;
       }
       
       //if (std::filesystem::exists(cli.value()))
 
     } 
     catch (const Args::HelpHasBeenPrintedException &) {
-      return 0;
+      return EXIT_SUCCESS;
     } 
     catch (const Args::BaseException & e) {
       fmt::print("{}\n", e.desc());
 
-      return 1;
+      return EXIT_FAILURE;
     }
 
-		return 0;
+		return EXIT_SUCCESS;
 	}
 }
