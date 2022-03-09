@@ -4,3 +4,4 @@ Makefile
 *.make
 *.sln
 *.vcxproj*
+.vscode/
