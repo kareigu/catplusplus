@@ -1,6 +1,6 @@
 #include "Application/core.h"
 #include "Application/files.h"
-#include <args-parser/all.hpp>
+#include <CLI11/CLI11.hpp>
 #include <fmt/core.h>
 #include <filesystem>
 #include <string>
@@ -40,29 +40,37 @@ namespace Application {
     return EXIT_SUCCESS;
   }
 
+  bool read_cin(std::vector<std::string>& files) {
+    bool got_input = false;
+    std::string line;
+    while (std::cin >> line) {
+      files.emplace_back(line);
+      got_input = true;
+    }
+    return got_input;
+  }
+
 	int run(int argc, char** argv) {
-		try {
-      Args::CmdLine cli(argc, argv);
+    CLI::App app("cat clone written in C++", "catpp");
 
-      cli
-        .addMultiArg('f', "file", true, true, "Path to file", "Path of file to read")
-        .addHelp(true, argv[0], "Basic cat clone written in C++");
+    std::vector<std::string> files;
+    auto file = app.add_option("file, -f, --file", files, "path(s) to file(s)");
+    file->expected(-1)->delimiter(' ')->required();
+    app.alias("cat++");
 
-      cli.parse();
-
-      FileList list(cli.values("-f"));
-
-      return handle_file_list(list);
-    } 
-    catch (const Args::HelpHasBeenPrintedException &) {
-      return EXIT_SUCCESS;
-    } 
-    catch (const Args::BaseException & e) {
-      fmt::print("{}\n", e.desc());
-
-      return EXIT_FAILURE;
+    try {
+      app.parse(argc, argv);
+    } catch(const CLI::ParseError &e) { 
+      if (e.get_name() == "RequiredError" && std::string(e.what()).ends_with("file is required")) {
+        if (!read_cin(files))
+          return app.exit(e);
+      } else {
+        return app.exit(e); 
+      }
     }
 
-		return EXIT_SUCCESS;
+    FileList list(files);
+
+    return handle_file_list(list);
 	}
 }

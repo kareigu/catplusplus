@@ -21,7 +21,7 @@ project "catpp"
   includedirs {
     "src/",
     "vendor/fmt/include",
-    "vendor/args-parser/include"
+    "vendor/CLI11/include"
   }
 
   libdirs { "vendor" }
