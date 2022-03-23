@@ -98,7 +98,7 @@ namespace Application {
     return got_input;
   }
 
-	int run(int argc, char** argv) {
+	int run(int& argc, char**& argv) {
     CLI::App app("cat clone written in C++", "catpp");
     Config config = Config { .format_flag = FormatFlags::AllOn };
 

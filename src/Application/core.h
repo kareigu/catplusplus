@@ -3,6 +3,6 @@
 
 namespace Application {
 
-	int run(int argc, char** argv);
+	int run(int& argc, char**& argv);
 }
 #endif
